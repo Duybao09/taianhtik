@@ -1,6 +1,7 @@
 {
-  "name": "taianhtik",
+  "name": "taianhtiktok",
   "version": "1.0.0",
+  "description": "TikTok API developed by Duy Bảo",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
