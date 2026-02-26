@@ -7,58 +7,93 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 
-// HEADER bản quyền
+// ✅ HEADER ẨN BẢN QUYỀN
 app.use((req, res, next) => {
-    res.setHeader("X-Owner", "API thuộc quyền sở hữu và develop bởi Duy Bảo");
+    res.setHeader("X-Owner", "Thuộc bản quyền bởi Duy Bảo");
+    res.setHeader("X-Developer", "Develop bởi Duy Bảo");
     next();
 });
 
-// Trang chủ
+/* =========================
+   TRANG CHỦ
+========================= */
+
 app.get("/", (req, res) => {
     res.send(`
         <h1>🔥 TikTok Photo API 🔥</h1>
-        <p>API thuộc quyền sở hữu và develop bởi <b>Duy Bảo</b></p>
-        <p>/api/tiktok/photo?url=LINK</p>
+        <p><b>Thuộc bản quyền bởi Duy Bảo</b></p>
+        <p>Develop bởi Duy Bảo</p>
     `);
 });
 
-// API
-app.get("/api/tiktok/photo", async (req, res) => {
-    try {
-        const url = req.query.url;
+/* =========================
+   API TẢI ẢNH TIKTOK
+========================= */
 
-        if (!url) {
+app.get("/api/tiktok/photo", async (req, res) => {
+
+    const url = req.query.url;
+
+    if (!url) {
+        return res.json({
+            status: false,
+            owner: "Duy Bảo",
+            developer: "Duy Bảo",
+            message: "Thiếu link TikTok"
+        });
+    }
+
+    try {
+
+        const response = await axios.get(`https://www.tikwm.com/api/`, {
+            params: {
+                url: url,
+                hd: 1
+            }
+        });
+
+        if (!response.data || !response.data.data) {
             return res.json({
                 status: false,
                 owner: "Duy Bảo",
-                message: "Thiếu link"
+                developer: "Duy Bảo",
+                message: "Không lấy được dữ liệu"
             });
         }
 
-        const response = await axios.get("https://www.tikwm.com/api/", {
-            params: { url }
-        });
-
         const data = response.data.data;
+
+        if (data.images && data.images.length > 0) {
+            return res.json({
+                status: true,
+                owner: "Duy Bảo",
+                developer: "Duy Bảo",
+                type: "photo",
+                total_image: data.images.length,
+                images: data.images
+            });
+        }
 
         return res.json({
             status: true,
             owner: "Duy Bảo",
-            type: data.images ? "photo" : "video",
-            images: data.images || null,
-            video: data.play || null
+            developer: "Duy Bảo",
+            type: "video",
+            video: data.play
         });
 
     } catch (err) {
-        console.log(err);
-        return res.status(500).json({
+        res.status(500).json({
             status: false,
             owner: "Duy Bảo",
-            message: "Lỗi server"
+            developer: "Duy Bảo",
+            message: "Lỗi khi tải dữ liệu",
+            error: err.message
         });
     }
+
 });
 
 app.listen(PORT, "0.0.0.0", () => {
-    console.log("Server chạy tại port " + PORT);
+    console.log("Server chạy tại port", PORT);
 });
