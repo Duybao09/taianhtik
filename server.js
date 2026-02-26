@@ -6,24 +6,14 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
-
-// ✅ HEADER ẨN BẢN QUYỀN
-app.use((req, res, next) => {
-    res.setHeader("X-Owner", "Thuộc bản quyền bởi Duy Bảo");
-    res.setHeader("X-Developer", "Develop bởi Duy Bảo");
-    next();
-});
+app.use(express.json());
 
 /* =========================
    TRANG CHỦ
 ========================= */
 
 app.get("/", (req, res) => {
-    res.send(`
-        <h1>🔥 TikTok Photo API 🔥</h1>
-        <p><b>Thuộc bản quyền bởi Duy Bảo</b></p>
-        <p>Develop bởi Duy Bảo</p>
-    `);
+    res.send("🔥 TikTok Photo API 🔥");
 });
 
 /* =========================
@@ -36,9 +26,8 @@ app.get("/api/tiktok/photo", async (req, res) => {
 
     if (!url) {
         return res.json({
+            api: "API by Duy Bảo",
             status: false,
-            owner: "Duy Bảo",
-            developer: "Duy Bảo",
             message: "Thiếu link TikTok"
         });
     }
@@ -54,9 +43,8 @@ app.get("/api/tiktok/photo", async (req, res) => {
 
         if (!response.data || !response.data.data) {
             return res.json({
+                api: "API by Duy Bảo",
                 status: false,
-                owner: "Duy Bảo",
-                developer: "Duy Bảo",
                 message: "Không lấy được dữ liệu"
             });
         }
@@ -65,9 +53,8 @@ app.get("/api/tiktok/photo", async (req, res) => {
 
         if (data.images && data.images.length > 0) {
             return res.json({
+                api: "API by Duy Bảo",
                 status: true,
-                owner: "Duy Bảo",
-                developer: "Duy Bảo",
                 type: "photo",
                 total_image: data.images.length,
                 images: data.images
@@ -75,18 +62,16 @@ app.get("/api/tiktok/photo", async (req, res) => {
         }
 
         return res.json({
+            api: "API by Duy Bảo",
             status: true,
-            owner: "Duy Bảo",
-            developer: "Duy Bảo",
             type: "video",
             video: data.play
         });
 
     } catch (err) {
         res.status(500).json({
+            api: "API by Duy Bảo",
             status: false,
-            owner: "Duy Bảo",
-            developer: "Duy Bảo",
             message: "Lỗi khi tải dữ liệu",
             error: err.message
         });
