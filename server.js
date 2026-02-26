@@ -9,11 +9,43 @@ app.use(cors());
 app.use(express.json());
 
 /* =========================
-   TRANG CHỦ
+   CÁCH 3 - HEADER ẨN BẢN QUYỀN
+========================= */
+
+app.use((req, res, next) => {
+    res.setHeader("X-Powered-By", "Developed by Duy Bảo");
+    next();
+});
+
+/* =========================
+   CÁCH 1 - TRANG CHỦ HTML
 ========================= */
 
 app.get("/", (req, res) => {
-    res.send("🔥 TikTok Photo API by Duy Bảo 🔥");
+    res.send(`
+        <html>
+        <head>
+            <title>API by Duy Bảo</title>
+            <style>
+                body {
+                    background: #111;
+                    color: white;
+                    text-align: center;
+                    font-family: Arial;
+                    padding-top: 100px;
+                }
+                h1 { color: #00ffcc; }
+                p { font-size: 18px; }
+            </style>
+        </head>
+        <body>
+            <h1>🔥 TikTok Photo API 🔥</h1>
+            <p>API thuộc quyền sở hữu và develop bởi <b>Duy Bảo</b></p>
+            <p>Version: 1.0.0</p>
+            <p>Endpoint: /api/tiktok/photo?url=LINK</p>
+        </body>
+        </html>
+    `);
 });
 
 /* =========================
@@ -27,14 +59,14 @@ app.get("/api/tiktok/photo", async (req, res) => {
     if (!url) {
         return res.json({
             status: false,
+            owner: "Duy Bảo",
             message: "Thiếu link TikTok"
         });
     }
 
     try {
 
-        // Gọi API trung gian
-        const response = await axios.get(`https://www.tikwm.com/api/`, {
+        const response = await axios.get("https://www.tikwm.com/api/", {
             params: {
                 url: url,
                 hd: 1
@@ -44,25 +76,28 @@ app.get("/api/tiktok/photo", async (req, res) => {
         if (!response.data || !response.data.data) {
             return res.json({
                 status: false,
+                owner: "Duy Bảo",
                 message: "Không lấy được dữ liệu"
             });
         }
 
         const data = response.data.data;
 
-        // Nếu là slideshow ảnh
         if (data.images && data.images.length > 0) {
             return res.json({
                 status: true,
+                owner: "Duy Bảo",
+                developer: "Duy Bảo",
                 type: "photo",
                 total_image: data.images.length,
                 images: data.images
             });
         }
 
-        // Nếu là video thường
         return res.json({
             status: true,
+            owner: "Duy Bảo",
+            developer: "Duy Bảo",
             type: "video",
             video: data.play
         });
@@ -70,6 +105,7 @@ app.get("/api/tiktok/photo", async (req, res) => {
     } catch (err) {
         res.status(500).json({
             status: false,
+            owner: "Duy Bảo",
             message: "Lỗi khi tải dữ liệu",
             error: err.message
         });
